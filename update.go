@@ -46,7 +46,8 @@ The accepted format is as follow (unchanged values can be omitted):
     "realtimeRuntime": 0,
     "realtimePeriod": 0,
     "cpus": "",
-    "mems": ""
+    "mems": "",
+    "idle": 0
   },
   "blockIO": {
     "weight": 0
@@ -104,6 +105,10 @@ other options are ignored.
 			Name:  "memory",
 			Usage: "Memory limit (in bytes)",
 		},
+    cli.StringFlag{
+			Name:  "cpu-idle",
+			Usage: "set cgroup SCHED_IDLE or not, 0: default behavior, 1: SCHED_IDLE",
+		},
 		cli.StringFlag{
 			Name:  "memory-reservation",
 			Usage: "Memory reservation or soft_limit (in bytes)",
@@ -150,6 +155,7 @@ other options are ignored.
 				RealtimePeriod:  u64Ptr(0),
 				Cpus:            "",
 				Mems:            "",
+				Idle:            i64Ptr(0),
 			},
 			BlockIO: &specs.LinuxBlockIO{
 				Weight: u16Ptr(0),
@@ -188,6 +194,13 @@ other options are ignored.
 			}
 			if val := context.String("cpuset-mems"); val != "" {
 				r.CPU.Mems = val
+			}
+			if val := context.String("cpu-idle"); val != "" {
+				var err error
+				*r.CPU.Idle, err  = strconv.ParseInt(val, 10, 64)
+				if err != nil {
+					return fmt.Errorf("invalid value for cpu-idle: %w", err)
+				}
 			}
 
 			for _, pair := range []struct {

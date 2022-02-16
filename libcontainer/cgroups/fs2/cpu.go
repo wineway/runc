@@ -26,6 +26,14 @@ func setCpu(dirPath string, r *configs.Resources) error {
 		}
 	}
 
+	if r.CpuIdle != 0 {
+		if err := cgroups.WriteFile(dirPath, "cpu.idle", strconv.FormatInt(r.CpuIdle, 10)); err != nil {
+			return err
+		}
+	}
+
+
+
 	if r.CpuQuota != 0 || r.CpuPeriod != 0 {
 		str := "max"
 		if r.CpuQuota > 0 {

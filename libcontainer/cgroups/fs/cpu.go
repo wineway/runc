@@ -94,6 +94,16 @@ func (s *CpuGroup) Set(path string, r *configs.Resources) error {
 			}
 		}
 	}
+
+  if r.CpuIdle != 0 {
+    idle := strconv.FormatInt(r.CpuIdle, 10)
+    if err := cgroups.WriteFile(path, "cpu.idle", idle); err != nil {
+      if !errors.Is(err, unix.EINVAL) || r.CpuIdle == 0 {
+        return err
+      }
+    }
+  }
+
 	return s.SetRtSched(path, r)
 }
 
