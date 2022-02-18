@@ -15,6 +15,12 @@ func isCpuSet(r *configs.Resources) bool {
 }
 
 func setCpu(dirPath string, r *configs.Resources) error {
+	
+	if r.CpuIdle != 0 {
+		if err := cgroups.WriteFile(dirPath, "cpu.idle", strconv.FormatInt(r.CpuIdle, 10)); err != nil {
+			return err
+		}
+	}
 	if !isCpuSet(r) {
 		return nil
 	}
@@ -26,11 +32,6 @@ func setCpu(dirPath string, r *configs.Resources) error {
 		}
 	}
 
-	if r.CpuIdle != 0 {
-		if err := cgroups.WriteFile(dirPath, "cpu.idle", strconv.FormatInt(r.CpuIdle, 10)); err != nil {
-			return err
-		}
-	}
 
 
 

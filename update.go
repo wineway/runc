@@ -105,7 +105,7 @@ other options are ignored.
 			Name:  "memory",
 			Usage: "Memory limit (in bytes)",
 		},
-    cli.StringFlag{
+		cli.StringFlag{
 			Name:  "cpu-idle",
 			Usage: "set cgroup SCHED_IDLE or not, 0: default behavior, 1: SCHED_IDLE",
 		},
@@ -155,7 +155,7 @@ other options are ignored.
 				RealtimePeriod:  u64Ptr(0),
 				Cpus:            "",
 				Mems:            "",
-				Idle:            i64Ptr(0),
+				Idle:            0,
 			},
 			BlockIO: &specs.LinuxBlockIO{
 				Weight: u16Ptr(0),
@@ -195,12 +195,8 @@ other options are ignored.
 			if val := context.String("cpuset-mems"); val != "" {
 				r.CPU.Mems = val
 			}
-			if val := context.String("cpu-idle"); val != "" {
-				var err error
-				*r.CPU.Idle, err  = strconv.ParseInt(val, 10, 64)
-				if err != nil {
-					return fmt.Errorf("invalid value for cpu-idle: %w", err)
-				}
+			if val := context.Int64("cpu-idle"); val != 0 {
+				r.CPU.Idle  = val
 			}
 
 			for _, pair := range []struct {
@@ -306,6 +302,7 @@ other options are ignored.
 		config.Cgroups.Resources.CpusetCpus = r.CPU.Cpus
 		config.Cgroups.Resources.CpusetMems = r.CPU.Mems
 		config.Cgroups.Resources.Memory = *r.Memory.Limit
+		config.Cgroups.Resources.CpuIdle = r.CPU.Idle
 		config.Cgroups.Resources.MemoryReservation = *r.Memory.Reservation
 		config.Cgroups.Resources.MemorySwap = *r.Memory.Swap
 		config.Cgroups.Resources.PidsLimit = r.Pids.Limit
