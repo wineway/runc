@@ -332,7 +332,7 @@ func CreateLibcontainerConfig(opts *CreateOpts) (*configs.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cwd, err := filepath.Abs(rcwd)
+	cwd, err := filepath.EvalSymlinks(rcwd)
 	if err != nil {
 		return nil, err
 	}
